@@ -1,0 +1,19 @@
+version: 1
+
+paths:
+  journal: "~/WriterDeck/Journal"
+  tasks: "~/WriterDeck/Tasks"
+
+processing:
+  journal_min_age: "4h"
+  tasks_min_age: "1h"
+
+integrations:
+  day_one:
+    enabled: true
+    journal: "Default"
+    tags: ["WriterDeck", "Automated"]
+  
+  things:
+    enabled: true
+    tags: ["WriterDeck"]
