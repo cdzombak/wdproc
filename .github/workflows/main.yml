@@ -89,7 +89,7 @@ jobs:
 
   binaries:
     name: Binaries
-    needs: [lint, meta]
+    needs: [meta]
     if: needs.meta.outputs.is_running_version_tag_update != 'true'
     runs-on: macos-latest
 
@@ -122,7 +122,7 @@ jobs:
 
   release:
     name: GitHub (Pre)Release
-    needs: [meta, binaries]
+    needs: [meta, binaries, lint]
     if: >-
       needs.meta.outputs.is_release == 'true' ||
       needs.meta.outputs.is_prerelease == 'true'
@@ -165,7 +165,7 @@ jobs:
 
   homebrew:
     name: Update Homebrew Tap
-    needs: [meta, binaries]
+    needs: [meta, binaries, lint]
     if: needs.meta.outputs.is_release == 'true'
     runs-on: ubuntu-latest
     steps:
