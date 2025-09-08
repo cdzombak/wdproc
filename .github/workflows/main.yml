@@ -108,7 +108,7 @@ jobs:
         run: make all
 
       - name: Install GNU tools
-        run: brew install findutils gnu-tar
+        run: brew install findutils
       - name: Prepare release artifacts
         working-directory: out/
         run: |
