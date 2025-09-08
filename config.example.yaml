@@ -12,8 +12,8 @@ integrations:
   day_one:
     enabled: true
     journal: "Default"
-    tags: ["WriterDeck", "Automated"]
+    tags: ["via:WriterDeck"]
   
   things:
     enabled: true
-    tags: ["WriterDeck"]
+    tags: ["via:WriterDeck"]
