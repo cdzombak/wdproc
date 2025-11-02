@@ -8,6 +8,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/samber/lo"
 )
 
 type FileInfo struct {
@@ -60,19 +62,35 @@ func processFile(filePath, name string, minAge time.Duration, now time.Time) (*F
 		return nil, nil
 	}
 
+	content, err := readFileContent(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file content: %w", err)
+	}
+
+	commit := false
+
+	{
+		lines := strings.Split(content, "\n")
+		lines = lo.Filter(lines, func(line string, _ int) bool {
+			return strings.TrimSpace(line) != ""
+		})
+		if len(lines) > 0 {
+			lastLine := strings.TrimSpace(lines[len(lines)-1])
+			commit = lastLine == "commitentry"
+		}
+	}
+
 	createdTime, err := getFileCreationTime(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get creation time: %w", err)
 	}
-
 	age := now.Sub(createdTime)
-	if age < minAge {
-		return nil, nil
+	if age >= minAge {
+		commit = true
 	}
 
-	content, err := readFileContent(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file content: %w", err)
+	if !commit {
+		return nil, nil
 	}
 
 	nameNoExt := strings.TrimSuffix(name, filepath.Ext(name))
@@ -109,7 +127,7 @@ func getFileCreationTime(filePath string) (time.Time, error) {
 	}
 
 	sys := stat.Sys().(*syscall.Stat_t)
-	
+
 	createdTime := time.Unix(sys.Birthtimespec.Sec, sys.Birthtimespec.Nsec)
 	return createdTime, nil
 }
