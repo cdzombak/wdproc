@@ -77,6 +77,11 @@ func processFile(filePath, name string, minAge time.Duration, now time.Time) (*F
 		if len(lines) > 0 {
 			lastLine := strings.TrimSpace(lines[len(lines)-1])
 			commit = lastLine == "commitentry"
+			if commit {
+				// Remove the "commitentry" line from content
+				lines = lines[:len(lines)-1]
+				content = strings.Join(lines, "\n")
+			}
 		}
 	}
 
