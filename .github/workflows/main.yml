@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Derive version string
         id: bin_version
         run: echo "bin_version=$(./.version.sh)" >> "$GITHUB_OUTPUT"
@@ -70,12 +70,12 @@ jobs:
     name: golangci-lint
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: latest
 
@@ -83,7 +83,7 @@ jobs:
     name: actionlint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: actionlint
         uses: raven-actions/actionlint@v2
 
@@ -95,10 +95,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
       - name: Go version
@@ -115,7 +115,7 @@ jobs:
           mkdir ./gh-release
           gfind . -name '${{ needs.meta.outputs.bin_name }}-*' -executable -type f -maxdepth 1 -print0 | xargs -0 -I {} gtar --transform='flags=r;s|.*|${{ needs.meta.outputs.bin_name }}|' -czvf ./gh-release/{}.tar.gz {}
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ needs.meta.outputs.bin_name }} Binary Artifacts
           path: out/gh-release/*
@@ -131,7 +131,7 @@ jobs:
       contents: write
     steps:
       - name: Download binaries
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.meta.outputs.bin_name }} Binary Artifacts
           path: out
@@ -139,7 +139,7 @@ jobs:
         working-directory: out
         run: ls -R
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: out/${{ needs.meta.outputs.bin_name }}-*
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
@@ -155,9 +155,9 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Update running major/minor version tags
-        uses: sersoft-gmbh/running-release-tags-action@v3
+        uses: sersoft-gmbh/running-release-tags-action@v4
         with:
           fail-on-non-semver-tag: true
           create-release: false
@@ -170,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release to ${{ needs.meta.outputs.brewtap_owner }}/${{ needs.meta.outputs.brewtap_name }} tap
-        uses: Justintime50/homebrew-releaser@v2
+        uses: Justintime50/homebrew-releaser@v4.0.0
         with:
           homebrew_owner: ${{ needs.meta.outputs.brewtap_owner }}
           homebrew_tap: homebrew-${{ needs.meta.outputs.brewtap_name }}
@@ -194,7 +194,7 @@ jobs:
     needs: [meta, lint, binaries, release, homebrew]
     steps:
       - name: Send success notification
-        uses: niniyas/ntfy-action@master
+        uses: NiNiyas/ntfy-action@v1.0.6
         if: ${{ !contains(needs.*.result, 'failure') && (needs.meta.outputs.is_release == 'true' || needs.meta.outputs.is_prerelease == 'true') }}
         with:
           url: "https://ntfy.cdzombak.net"
@@ -205,7 +205,7 @@ jobs:
           title: ${{ github.event.repository.name }} ${{ needs.meta.outputs.bin_version }} available
           details: ${{ github.event.repository.name }} version ${{ needs.meta.outputs.bin_version }} is now available.
       - name: Send failure notification
-        uses: niniyas/ntfy-action@master
+        uses: NiNiyas/ntfy-action@v1.0.6
         if: ${{ contains(needs.*.result, 'failure') }}
         with:
           url: "https://ntfy.cdzombak.net"
